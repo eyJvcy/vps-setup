@@ -6,6 +6,18 @@ load_config
 
 check_root
 
+# Détecter le nom du service SSH
+if systemctl list-units --type=service | grep -q "ssh.service"; then
+    SSH_SERVICE="ssh"
+elif systemctl list-units --type=service | grep -q "sshd.service"; then
+    SSH_SERVICE="sshd"
+else
+    log_error "Service SSH introuvable"
+    exit 1
+fi
+
+log_info "Service SSH détecté: $SSH_SERVICE"
+
 echo "============================================"
 echo "  CONFIGURATION SSH"
 echo "============================================"
@@ -70,9 +82,9 @@ if ! confirm "Redémarrer SSH ?"; then
     exit 0
 fi
 
-systemctl restart sshd
+systemctl restart $SSH_SERVICE
 
-if systemctl is-active --quiet sshd; then
+if systemctl is-active --quiet $SSH_SERVICE; then
     log_success "✅ SSH redémarré"
     echo ""
     log_info "Testez depuis un autre terminal:"
@@ -83,7 +95,7 @@ if systemctl is-active --quiet sshd; then
 else
     log_error "❌ Erreur"
     cp /etc/ssh/sshd_config.backup.* /etc/ssh/sshd_config
-    systemctl restart sshd
+    systemctl restart $SSH_SERVICE
     exit 1
 fi
 
