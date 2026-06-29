@@ -86,21 +86,3 @@ echo ""
 echo "  2. Lancez l'installation complète:"
 echo "     cd $INSTALL_DIR && ./install-all.sh"
 echo ""
-
-# Vérifier si on est dans un terminal interactif
-if [ -t 0 ]; then
-    read -p "Voulez-vous éditer la configuration maintenant ? (o/N) " -n 1 -r
-    echo ""
-    if [[ $REPLY =~ ^[Oo]$ ]]; then
-        ${EDITOR:-nano} $INSTALL_DIR/config.env
-        echo ""
-        read -p "Voulez-vous lancer l'installation complète maintenant ? (o/N) " -n 1 -r
-        echo ""
-        if [[ $REPLY =~ ^[Oo]$ ]]; then
-            cd $INSTALL_DIR && ./install-all.sh
-        fi
-    fi
-else
-    log_info "Script exécuté via pipe, mode non-interactif"
-    log_info "Éditez manuellement la config puis lancez install-all.sh"
-fi
