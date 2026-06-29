@@ -26,10 +26,25 @@ ufw allow $VPS_SSH_PORT/tcp comment 'SSH'
 log_success "SSH autorisé"
 
 # Autres ports
-[ "$VPS_ALLOW_HTTP" = true ] && ufw allow 80/tcp comment 'HTTP' && log_success "HTTP autorisé"
-[ "$VPS_ALLOW_HTTPS" = true ] && ufw allow 443/tcp comment 'HTTPS' && log_success "HTTPS autorisé"
-[ "$VPS_ALLOW_DEV_PORTS_3000" = true ] && ufw allow 3000:3010/tcp comment 'Dev 3000-3010' && log_success "Ports 3000-3010 autorisés"
-[ "$VPS_ALLOW_DEV_PORTS_8000" = true ] && ufw allow 8000:8010/tcp comment 'Dev 8000-8010' && log_success "Ports 8000-8010 autorisés"
+if [ "$VPS_ALLOW_HTTP" = true ]; then
+    ufw allow 80/tcp comment 'HTTP'
+    log_success "HTTP autorisé"
+fi
+
+if [ "$VPS_ALLOW_HTTPS" = true ]; then
+    ufw allow 443/tcp comment 'HTTPS'
+    log_success "HTTPS autorisé"
+fi
+
+if [ "$VPS_ALLOW_DEV_PORTS_3000" = true ]; then
+    ufw allow 3000:3010/tcp comment 'Dev 3000-3010'
+    log_success "Ports 3000-3010 autorisés"
+fi
+
+if [ "$VPS_ALLOW_DEV_PORTS_8000" = true ]; then
+    ufw allow 8000:8010/tcp comment 'Dev 8000-8010'
+    log_success "Ports 8000-8010 autorisés"
+fi
 
 echo ""
 log_info "Règles configurées:"
