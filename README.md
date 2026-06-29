@@ -22,4 +22,4 @@ Créer un VPS avec plusieurs utilisateurs complètement isolés, chacun avec :
 ### Sur le VPS (en tant que root)
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/VOTRE_USER/vps-setup/main/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/eyjvcy/vps-setup/main/install.sh | bash
