@@ -1,12 +1,12 @@
 #!/bin/bash
 # ============================================
 # INSTALLATION AUTOMATIQUE VPS
-# Usage: curl -sSL https://raw.githubusercontent.com/VOTRE_USER/vps-setup/main/install.sh | bash
+# Usage: curl -sSL https://raw.githubusercontent.com/eyjvcy/vps-setup/main/install.sh | bash
 # ============================================
 
 set -e
 
-REPO_URL="${VPS_REPO_URL:-https://github.com/VOTRE_USER/vps-setup}"
+REPO_URL="${VPS_REPO_URL:-https://github.com/eyjvcy/vps-setup}"
 REPO_BRANCH="${VPS_REPO_BRANCH:-main}"
 INSTALL_DIR="/root/vps-setup"
 
