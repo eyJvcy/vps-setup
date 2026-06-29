@@ -87,12 +87,12 @@ echo "  2. Lancez l'installation complète:"
 echo "     cd $INSTALL_DIR && ./install-all.sh"
 echo ""
 
-read -p "Voulez-vous éditer la configuration maintenant ? (o/N) " -n 1 -r
+read -p "Voulez-vous éditer la configuration maintenant ? (o/N) " -n 1
 echo ""
 if [[ $REPLY =~ ^[Oo]$ ]]; then
     ${EDITOR:-nano} config.env
     echo ""
-    read -p "Voulez-vous lancer l'installation complète maintenant ? (o/N) " -n 1 -r
+    read -p "Voulez-vous lancer l'installation complète maintenant ? (o/N) " -n 1
     echo ""
     if [[ $REPLY =~ ^[Oo]$ ]]; then
         ./install-all.sh
