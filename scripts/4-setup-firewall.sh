@@ -20,17 +20,19 @@ ufw default deny incoming
 ufw default allow outgoing
 log_success "Configuré"
 
-log_step "Port SSH: $VPS_SSH_PORT"
+# ⚠️ IMPORTANT : Autoriser SSH EN PREMIER !
+log_step "Port SSH: $VPS_SSH_PORT (PRIORITAIRE)"
 ufw allow $VPS_SSH_PORT/tcp comment 'SSH'
 log_success "SSH autorisé"
 
+# Autres ports
 [ "$VPS_ALLOW_HTTP" = true ] && ufw allow 80/tcp comment 'HTTP' && log_success "HTTP autorisé"
 [ "$VPS_ALLOW_HTTPS" = true ] && ufw allow 443/tcp comment 'HTTPS' && log_success "HTTPS autorisé"
 [ "$VPS_ALLOW_DEV_PORTS_3000" = true ] && ufw allow 3000:3010/tcp comment 'Dev 3000-3010' && log_success "Ports 3000-3010 autorisés"
 [ "$VPS_ALLOW_DEV_PORTS_8000" = true ] && ufw allow 8000:8010/tcp comment 'Dev 8000-8010' && log_success "Ports 8000-8010 autorisés"
 
 echo ""
-log_info "Règles:"
+log_info "Règles configurées:"
 ufw show added
 echo ""
 
@@ -39,10 +41,25 @@ if ! confirm "Activer le pare-feu ?"; then
     exit 0
 fi
 
+log_step "Activation du pare-feu..."
 ufw --force enable
 log_success "✅ Pare-feu activé"
+
 echo ""
+log_info "Statut du pare-feu:"
 ufw status verbose
+echo ""
+
+# Vérification que SSH est bien autorisé
+if ufw status | grep -q "$VPS_SSH_PORT"; then
+    log_success "✅ Port SSH $VPS_SSH_PORT autorisé"
+else
+    log_error "❌ Port SSH $VPS_SSH_PORT NON autorisé !"
+    log_warning "Ajout manuel du port SSH..."
+    ufw allow $VPS_SSH_PORT/tcp
+    log_success "Port SSH ajouté"
+fi
+
 echo ""
 log_success "✅ Configuration pare-feu terminée"
 echo ""
