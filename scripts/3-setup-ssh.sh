@@ -6,7 +6,7 @@ load_config
 
 check_root
 
-# Détecter le nom du service SSH
+# Détecter le service SSH
 if systemctl list-units --type=service | grep -q "ssh.service"; then
     SSH_SERVICE="ssh"
 elif systemctl list-units --type=service | grep -q "sshd.service"; then
@@ -26,6 +26,8 @@ echo ""
 log_step "Sauvegarde config SSH..."
 cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup.$(date +%Y%m%d_%H%M%S)
 log_success "Sauvegarde créée"
+
+log_step "Création de la configuration SSH..."
 
 PERMIT_ROOT="yes"
 [ "$VPS_SSH_DISABLE_ROOT" = true ] && PERMIT_ROOT="no"
@@ -63,6 +65,7 @@ EOF
 
 log_success "Config SSH créée"
 
+log_step "Validation de la configuration..."
 if sshd -t; then
     log_success "✅ Config valide"
 else
@@ -70,6 +73,13 @@ else
     cp /etc/ssh/sshd_config.backup.* /etc/ssh/sshd_config
     exit 1
 fi
+
+# Désactivation du socket systemd
+log_step "Désactivation du socket systemd..."
+systemctl stop ssh.socket 2>/dev/null
+systemctl disable ssh.socket 2>/dev/null
+systemctl mask ssh.socket 2>/dev/null
+log_success "Socket désactivé"
 
 echo ""
 log_warning "⚠️  SSH va redémarrer"
@@ -82,10 +92,15 @@ if ! confirm "Redémarrer SSH ?"; then
     exit 0
 fi
 
-systemctl restart $SSH_SERVICE
+log_step "Redémarrage SSH..."
+systemctl restart $SSH_SERVICE.service
 
-if systemctl is-active --quiet $SSH_SERVICE; then
-    log_success "✅ SSH redémarré"
+sleep 2
+
+# Vérification
+log_step "Vérification..."
+if ss -tlnp | grep -q ":$VPS_SSH_PORT"; then
+    log_success "✅ SSH écoute sur le port $VPS_SSH_PORT"
     echo ""
     log_info "Testez depuis un autre terminal:"
     server_ip=$(hostname -I | awk '{print $1}')
@@ -93,9 +108,8 @@ if systemctl is-active --quiet $SSH_SERVICE; then
         echo "  ssh -p $VPS_SSH_PORT $user@$server_ip"
     done
 else
-    log_error "❌ Erreur"
-    cp /etc/ssh/sshd_config.backup.* /etc/ssh/sshd_config
-    systemctl restart $SSH_SERVICE
+    log_error "❌ SSH n'écoute pas sur le port $VPS_SSH_PORT"
+    log_error "Port actuel: $(ss -tlnp | grep ssh | grep -o ':[0-9]*' | head -1)"
     exit 1
 fi
 
